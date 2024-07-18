@@ -27,7 +27,28 @@ public class Card {
         Color oColor=g.getColor();
         g.setColor(color);
         g.fillRoundRect(x,y,w,h,4,4);
+
+        if(num!=0){
+            g.setColor(new Color(125,78,51));
+            Font font = new Font("思源宋体",Font.BOLD,50);
+            g.setFont(font);
+            String text = num+"";
+            int textLen = getWordWidth(font,text,g);
+            int tx = x+(w-textLen)/2;
+            int ty = y+78;
+            g.drawString(text,tx,ty);
+        }
+
         g.setColor(oColor);
+    }
+
+    private static int getWordWidth(Font font,String content,Graphics g) {
+        FontMetrics metrics = g.getFontMetrics(font);
+        int width=0;
+        for(int i=0;i<content.length();i++){
+            width += metrics.charWidth(content.charAt(i));
+        }
+        return width;
     }
 
     private Color getColor(){
@@ -72,5 +93,13 @@ public class Card {
                 break;
         }
         return color;
+    }
+
+    public void setNum(int num) {
+        this.num=num;
+    }
+
+    public int getNum() {
+        return this.num;
     }
 }
