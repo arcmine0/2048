@@ -1,4 +1,5 @@
 import javax.swing.*;
+import javax.swing.plaf.FontUIResource;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -58,6 +59,8 @@ public class GamePanel extends JPanel implements ActionListener {
     }
 
     private void moveCard(int dir) {
+        clearCard();
+
         if(dir==1){
             moveCardTop();
         }else if(dir==2){
@@ -67,22 +70,117 @@ public class GamePanel extends JPanel implements ActionListener {
         }else if(dir==4){
             moveCardLeft();
         }
+
+        createRandomNum();
+        repaint();
+        gameOverOrNot();
     }
 
-    private void moveCardLeft() {
-
+    private void gameOverOrNot() {
+        if(isWin()){
+            gameWin();
+        }else if(cardIsFull()){
+            if(moveCardLeft() || moveCardDown() || moveCardRight() || moveCardTop()){
+                return;
+            }else{
+                gameOver();
+            }
+        }
     }
 
-    private void moveCardDown() {
-
+    private void gameWin() {
+        gameFlag="end";
+        UIManager.put("OptionPane.buttonFont",new FontUIResource(new Font("思源宋体",Font.ITALIC,18)));
+        UIManager.put("OptionPane.messageFont",new FontUIResource(new Font("思源宋体",Font.ITALIC,18)));
+        JOptionPane.showMessageDialog(frame,"你成功了，太棒了！");
     }
 
-    private void moveCardRight() {
-
+    private void gameOver() {
+        gameFlag="end";
+        UIManager.put("OptionPane.buttonFont",new FontUIResource(new Font("思源宋体",Font.ITALIC,18)));
+        UIManager.put("OptionPane.messageFont",new FontUIResource(new Font("思源宋体",Font.ITALIC,18)));
+        JOptionPane.showMessageDialog(frame,"你失败了，请再接再厉！");
     }
 
-    private void moveCardTop() {
-        System.out.println("moveup");
+    private boolean isWin() {
+        Card card;
+        for(int i=0;i<ROWS;i++){
+            for(int j=0;j<COLS;j++){
+                card = cards[i][j];
+                if(card.getNum()==2048){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private void clearCard() {
+        Card card;
+        for(int i=0;i<ROWS;i++){
+            for(int j=0;j<COLS;j++){
+                card = cards[i][j];
+                card.setMerge(false);
+            }
+        }
+    }
+
+    private boolean moveCardLeft() {
+        Card card;
+        boolean b=false;
+        for(int j=1;j<COLS;j++){
+            for(int i=0;i<ROWS;i++){
+                card=cards[i][j];
+                if(card.moveLeft(cards)){
+                    b=true;
+                }
+            }
+        }
+        return b;
+    }
+
+    private boolean moveCardDown() {
+        Card card;
+        boolean b=false;
+        for(int i=ROWS-1;i>=0;i--){
+            for(int j=0;j<COLS;j++){
+                card=cards[i][j];
+                if(card.moveDown(cards)){
+                    b=true;
+                }
+            }
+        }
+        return b;
+    }
+
+    private boolean moveCardRight() {
+        Card card;
+        boolean b=false;
+        for(int j=COLS-1;j>=0;j--){
+            for(int i=0;i<ROWS;i++){
+                card = cards[i][j];
+                if(card.moveRight(cards)){
+                    b=true;
+                }
+            }
+        }
+        return  b;
+    }
+
+    private boolean moveCardTop() {
+        Card card;
+        boolean b=false;
+        for(int i=1;i<ROWS;i++){
+            for(int j=0;j<COLS;j++){
+                card = cards[i][j];
+                if(card.getNum()!=0){
+                    if(card.moveTop(cards)){
+                        b=true;
+                    }
+                }
+            }
+        }
+        return b;
     }
 
     private void createRandomNum() {

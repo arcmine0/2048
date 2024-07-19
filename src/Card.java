@@ -1,6 +1,8 @@
 import java.awt.*;
 
 public class Card {
+    private static final int ROWS = 4;
+    private static final int COLS = 4;
     private int x=0;
     private int y=0;
     private int w=120;
@@ -102,4 +104,93 @@ public class Card {
     public int getNum() {
         return this.num;
     }
+
+    public boolean moveTop(Card[][] cards) {
+        boolean flag = false;
+        if(i==0){
+            return false;
+        }
+        Card prev = cards[i-1][j];
+        if(prev.getNum()==0){
+            prev.num=this.num;
+            this.num=0;
+            flag=true;
+            prev.moveTop(cards);
+        }else if(prev.getNum()==this.num && !this.merge){
+            prev.merge=true;
+            prev.num=prev.num+this.num;
+            this.num=0;
+            flag=true;
+            prev.moveTop(cards);
+        }
+        return flag;
+    }
+
+    public void setMerge(boolean b) {
+        this.merge=b;
+    }
+
+    public boolean moveLeft(Card[][] cards) {
+        boolean flag=false;
+        if(j==0){
+            return false;
+        }
+        Card prev = cards[i][j-1];
+        if(prev.getNum()==0){
+            prev.num=this.num;
+            this.num=0;
+            flag=true;
+            prev.moveLeft(cards);
+        }else if(prev.getNum()==this.num && !this.merge){
+            prev.merge=true;
+            prev.num=prev.num+this.num;
+            this.num=0;
+            flag=true;
+            prev.moveLeft(cards);
+        }
+        return flag;
+    }
+
+    public boolean moveDown(Card[][] cards) {
+        boolean flag=false;
+        if(i==ROWS-1){
+            return false;
+        }
+        Card prev = cards[i+1][j];
+        if(prev.getNum()==0){
+            prev.num=this.num;
+            this.num=0;
+            flag=true;
+            prev.moveDown(cards);
+        }else if(prev.getNum()==this.num && !this.merge){
+            prev.merge=true;
+            prev.num=prev.num+this.num;
+            this.num=0;
+            flag=true;
+            prev.moveDown(cards);
+        }
+        return flag;
+    }
+
+    public boolean moveRight(Card[][] cards) {
+        boolean flag=false;
+        if(j==COLS-1){
+            return false;
+        }
+        Card prev = cards[i][j+1];
+        if(prev.getNum()==0){
+            prev.num=this.num;
+            this.num=0;
+            flag=true;
+            prev.moveRight(cards);
+        }else if(prev.getNum()==this.num && !this.merge){
+            prev.merge=true;
+            prev.num=prev.num+this.num;
+            this.num=0;
+            flag=true;
+            prev.moveRight(cards);
+        }
+        return flag;
+    }
+
 }
