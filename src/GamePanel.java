@@ -8,254 +8,32 @@ import java.awt.event.KeyEvent;
 import java.util.Random;
 
 public class GamePanel extends JPanel implements ActionListener {
-    private static final int ROWS = 4;
-    private static final int COLS = 4;
-    private JFrame frame = null;
-    private GamePanel panel = null;
-    private Card[][] cards = new Card[ROWS][COLS];
-    private String gameFlag = "start";
+    private static final int ROWS = 4;  //行卡片数
+    private static final int COLS = 4;  //列卡片数
+    private JFrame frame = null;  //panel面板所属窗口
+    private Card[][] cards = new Card[ROWS][COLS];  //卡片所在二维数组
+    private String gameFlag = "start";  //游戏状态
 
     public GamePanel(JFrame frame) {
-        this.setLayout(null);
-        this.setOpaque(false);
+        this.setLayout(new FlowLayout());  //设置组件布局
+        this.setOpaque(false);  //设置组件透明度
         this.frame=frame;
-        this.panel=this;
 
-        createMenu();
-        initCard();
-        createRandomNum();
-        creatKeyListener();
+        createMenu();  //创建菜单
+        initCard();  //初始化卡片
+        createRandomNum();  //卡片随即赋值
+        creatKeyListener();  //设置监听器
     }
 
-    private void creatKeyListener() {
-        KeyAdapter keyAdapter = new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if(!"start".equals(gameFlag)){
-                    return;
-                }
-                int key = e.getKeyCode();
-                switch (key){
-                    case KeyEvent.VK_UP:
-                    case KeyEvent.VK_W:
-                        moveCard(1);
-                        break;
-                    case KeyEvent.VK_RIGHT:
-                    case KeyEvent.VK_D:
-                        moveCard(2);
-                        break;
-                    case KeyEvent.VK_DOWN:
-                    case KeyEvent.VK_S:
-                        moveCard(3);
-                        break;
-                    case KeyEvent.VK_LEFT:
-                    case KeyEvent.VK_A:
-                        moveCard(4);
-                        break;
-                }
-            }
-        };
-        frame.addKeyListener(keyAdapter);
-    }
 
-    private void moveCard(int dir) {
-        clearCard();
+    //菜单创建--------------------------------------------------------------------------------
 
-        if(dir==1){
-            moveCardTop();
-        }else if(dir==2){
-            moveCardRight();
-        }else if(dir==3){
-            moveCardDown();
-        }else if(dir==4){
-            moveCardLeft();
-        }
-
-        createRandomNum();
-        repaint();
-        gameOverOrNot();
-    }
-
-    private void gameOverOrNot() {
-        if(isWin()){
-            gameWin();
-        }else if(cardIsFull()){
-            if(moveCardLeft() || moveCardDown() || moveCardRight() || moveCardTop()){
-                return;
-            }else{
-                gameOver();
-            }
-        }
-    }
-
-    private void gameWin() {
-        gameFlag="end";
-        UIManager.put("OptionPane.buttonFont",new FontUIResource(new Font("思源宋体",Font.ITALIC,18)));
-        UIManager.put("OptionPane.messageFont",new FontUIResource(new Font("思源宋体",Font.ITALIC,18)));
-        JOptionPane.showMessageDialog(frame,"你成功了，太棒了！");
-    }
-
-    private void gameOver() {
-        gameFlag="end";
-        UIManager.put("OptionPane.buttonFont",new FontUIResource(new Font("思源宋体",Font.ITALIC,18)));
-        UIManager.put("OptionPane.messageFont",new FontUIResource(new Font("思源宋体",Font.ITALIC,18)));
-        JOptionPane.showMessageDialog(frame,"你失败了，请再接再厉！");
-    }
-
-    private boolean isWin() {
-        Card card;
-        for(int i=0;i<ROWS;i++){
-            for(int j=0;j<COLS;j++){
-                card = cards[i][j];
-                if(card.getNum()==2048){
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    private void clearCard() {
-        Card card;
-        for(int i=0;i<ROWS;i++){
-            for(int j=0;j<COLS;j++){
-                card = cards[i][j];
-                card.setMerge(false);
-            }
-        }
-    }
-
-    private boolean moveCardLeft() {
-        Card card;
-        boolean b=false;
-        for(int j=1;j<COLS;j++){
-            for(int i=0;i<ROWS;i++){
-                card=cards[i][j];
-                if(card.moveLeft(cards)){
-                    b=true;
-                }
-            }
-        }
-        return b;
-    }
-
-    private boolean moveCardDown() {
-        Card card;
-        boolean b=false;
-        for(int i=ROWS-1;i>=0;i--){
-            for(int j=0;j<COLS;j++){
-                card=cards[i][j];
-                if(card.moveDown(cards)){
-                    b=true;
-                }
-            }
-        }
-        return b;
-    }
-
-    private boolean moveCardRight() {
-        Card card;
-        boolean b=false;
-        for(int j=COLS-1;j>=0;j--){
-            for(int i=0;i<ROWS;i++){
-                card = cards[i][j];
-                if(card.moveRight(cards)){
-                    b=true;
-                }
-            }
-        }
-        return  b;
-    }
-
-    private boolean moveCardTop() {
-        Card card;
-        boolean b=false;
-        for(int i=1;i<ROWS;i++){
-            for(int j=0;j<COLS;j++){
-                card = cards[i][j];
-                if(card.getNum()!=0){
-                    if(card.moveTop(cards)){
-                        b=true;
-                    }
-                }
-            }
-        }
-        return b;
-    }
-
-    private void createRandomNum() {
-        int num=0;
-        Random random = new Random();
-        int n = random.nextInt(5) + 1;
-        if(n==1){
-            num=4;
-        }else{
-            num=2;
-        }
-
-        if(cardIsFull()){
-            return;
-        }
-
-        Card card=getRandomCard(random);
-        if(card!=null){
-            card.setNum(num);
-        }
-    }
-
-    private boolean cardIsFull() {
-        Card card;
-        for(int i=0;i<ROWS;i++){
-            for(int j=0;j<COLS;j++) {
-                card = new Card(i,j);
-                if(card.getNum()==0){
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    private Card getRandomCard(Random random) {
-        int i = random.nextInt(ROWS);
-        int j = random.nextInt(COLS);
-        Card card = cards[i][j];
-
-        if(card.getNum()==0){
-            return card;
-        }
-        return getRandomCard(random);
-    }
-
-    private void initCard() {
-        Card card;
-        for(int i=0;i<ROWS;i++){
-            for(int j=0;j<COLS;j++){
-                card = new Card(i,j);
-                cards[i][j]=card;
-            }
-        }
-    }
-
-    @Override
-    public void paint(Graphics g){
-        super.paint(g);
-        drawCard(g);
-    }
-
-    private void drawCard(Graphics g) {
-        Card card;
-        for(int i=0;i<ROWS;i++){
-            for(int j=0;j<COLS;j++){
-                card = cards[i][j];
-                card.draw(g);
-            }
-        }
-    }
-
+    //设置字体
     private Font createFont() {
         return new Font("思源宋体",Font.BOLD,20);
     }
+
+    //创建菜单栏以及按钮监听
     private void createMenu() {
         Font tFont = createFont();
 
@@ -295,6 +73,7 @@ public class GamePanel extends JPanel implements ActionListener {
         jmi4.setActionCommand("win");
     }
 
+    //按钮功能实现
     @Override
     public void actionPerformed(ActionEvent e) {
         String command = e.getActionCommand();
@@ -309,10 +88,266 @@ public class GamePanel extends JPanel implements ActionListener {
         }else if("help".equals(command)){
             JOptionPane.showMessageDialog(null,"通过键盘的wasd或上下左右来移动，相同数字会合并","操作帮助",JOptionPane.INFORMATION_MESSAGE);
         }else if("win".equals(command)){
-            JOptionPane.showMessageDialog(null,"得到数字2048获得胜利，当没有空卡片时失败","胜利条件",JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(null,"得到数字2048获得胜利，当没有空卡片且不能进行合并时失败","胜利条件",JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+    private void restart() {
+        gameFlag="start";
+        initCard();
+        createRandomNum();
+        repaint();
+    }
+
+    //卡片绘制---------------------------------------------------------------------------
+
+    //初始化所有卡片
+    private void initCard() {
+        Card card;
+        for(int i=0;i<ROWS;i++){
+            for(int j=0;j<COLS;j++){
+                card = new Card(i,j);
+                cards[i][j]=card;
+            }
         }
     }
 
-    private void restart() {
+    //判断卡片是否已满
+    private boolean cardIsFull() {
+        Card card;
+        for(int i=0;i<ROWS;i++){
+            for(int j=0;j<COLS;j++) {
+                card = cards[i][j];
+                if(card.getNum()==0){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    //卡片随机赋值2或4
+    private void createRandomNum() {
+        int num=0;
+        Random random = new Random();
+        int n = random.nextInt(5) + 1;
+        if(n==1){
+            num=4;
+        }else{
+            num=2;
+        }
+
+        if(cardIsFull()){
+            return;
+        }
+
+        Card card=getRandomCard(random);
+        if(card!=null){
+            card.setNum(num);
+        }
+    }
+
+    //获取随机一张卡片
+    private Card getRandomCard(Random random) {
+        int i = random.nextInt(ROWS);
+        int j = random.nextInt(COLS);
+        Card card = cards[i][j];
+
+        if(card.getNum()==0){
+            return card;
+        }
+        return getRandomCard(random);
+    }
+
+    //绘制
+    @Override
+    public void paint(Graphics g){
+        super.paint(g);
+        drawCard(g);
+    }
+
+    private void drawCard(Graphics g) {
+        Card card;
+        for(int i=0;i<ROWS;i++){
+            for(int j=0;j<COLS;j++){
+                card = cards[i][j];
+                card.draw(g);
+            }
+        }
+    }
+
+    //键盘输入监听-------------------------------------------------------------------------
+
+    //设置监听器
+    private void creatKeyListener() {
+        KeyAdapter keyAdapter = new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if(!"start".equals(gameFlag)){
+                    return;
+                }
+                int key = e.getKeyCode();
+                switch (key){
+                    case KeyEvent.VK_UP:
+                    case KeyEvent.VK_W:
+                        moveCard(1);
+                        break;
+                    case KeyEvent.VK_RIGHT:
+                    case KeyEvent.VK_D:
+                        moveCard(2);
+                        break;
+                    case KeyEvent.VK_DOWN:
+                    case KeyEvent.VK_S:
+                        moveCard(3);
+                        break;
+                    case KeyEvent.VK_LEFT:
+                    case KeyEvent.VK_A:
+                        moveCard(4);
+                        break;
+                }
+            }
+        };
+        frame.addKeyListener(keyAdapter);
+    }
+
+    //根据按键执行对应操作
+    private void moveCard(int dir) {
+        clearCard();
+
+        if(dir==1){
+            moveCardTop(true);
+        }else if(dir==2){
+            moveCardRight(true);
+        }else if(dir==3){
+            moveCardDown(true);
+        }else if(dir==4){
+            moveCardLeft(true);
+        }
+
+        createRandomNum();
+        repaint();
+        gameOverOrNot();
+    }
+
+    //重置卡片合并状态
+    private void clearCard() {
+        Card card;
+        for(int i=0;i<ROWS;i++){
+            for(int j=0;j<COLS;j++){
+                card = cards[i][j];
+                card.setMerge(false);
+            }
+        }
+    }
+
+    //像上移动
+    private boolean moveCardTop(boolean b) {
+        Card card;
+        boolean res = false;
+        for(int i=1;i<ROWS;i++){
+            for(int j=0;j<COLS;j++){
+                card = cards[i][j];
+                if(card.getNum()!=0){
+                    if(card.moveTop(cards,b)){
+                        res = true;
+                    }
+                }
+            }
+        }
+        return res;
+    }
+
+    //向下移动
+    private boolean moveCardDown(boolean b) {
+        Card card;
+        boolean res = false;
+        for(int i=ROWS-2;i>=0;i--){
+            for(int j=0;j<COLS;j++){
+                card=cards[i][j];
+                if(card.getNum()!=0){
+                    if(card.moveDown(cards,b)){
+                        res = true;
+                    }
+                }
+            }
+        }
+        return res;
+    }
+
+    //向左移动
+    private boolean moveCardLeft(boolean b) {
+        Card card;
+        boolean res = false;
+        for(int j=1;j<COLS;j++){
+            for(int i=0;i<ROWS;i++){
+                card=cards[i][j];
+                if(card.getNum()!=0){
+                    if(card.moveLeft(cards,b)){
+                        res = true;
+                    }
+                }
+            }
+        }
+        return res;
+    }
+
+    //向右移动
+    private boolean moveCardRight(boolean b) {
+        Card card;
+        boolean res = false;
+        for(int j=COLS-2;j>=0;j--){
+            for(int i=0;i<ROWS;i++){
+                card = cards[i][j];
+                if(card.getNum()!=0){
+                    if(card.moveRight(cards,b)){
+                        res = true;
+                    }
+                }
+            }
+        }
+        return  res;
+    }
+
+    //游戏结束判断-----------------------------------------------------------------------------
+
+    private void gameOverOrNot() {
+        if(isWin()){
+            gameWin();
+        }else if(cardIsFull()){
+            if(moveCardLeft(false) || moveCardDown(false) || moveCardRight(false) || moveCardTop(false)){
+                return;
+            }else {
+                gameOver();
+            }
+        }
+    }
+
+    //判断是否胜利
+    private boolean isWin() {
+        Card card;
+        for(int i=0;i<ROWS;i++){
+            for(int j=0;j<COLS;j++){
+                card = cards[i][j];
+                if(card.getNum()==2048){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    //胜利窗口
+    private void gameWin() {
+        gameFlag="end";
+        UIManager.put("OptionPane.buttonFont",new FontUIResource(new Font("思源宋体",Font.ITALIC,18)));
+        UIManager.put("OptionPane.messageFont",new FontUIResource(new Font("思源宋体",Font.ITALIC,18)));
+        JOptionPane.showMessageDialog(frame,"你成功了，太棒了！");
+    }
+
+    //失败窗口
+    private void gameOver() {
+        gameFlag="end";
+        UIManager.put("OptionPane.buttonFont",new FontUIResource(new Font("思源宋体",Font.ITALIC,18)));
+        UIManager.put("OptionPane.messageFont",new FontUIResource(new Font("思源宋体",Font.ITALIC,18)));
+        JOptionPane.showMessageDialog(frame,"你失败了，请再接再厉！");
     }
 }

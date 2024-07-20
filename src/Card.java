@@ -1,18 +1,18 @@
 import java.awt.*;
 
 public class Card {
-    private static final int ROWS = 4;
-    private static final int COLS = 4;
-    private int x=0;
-    private int y=0;
-    private int w=120;
-    private int h=120;
-    private int i=0;
-    private int j=0;
+    private static final int ROWS = 4;  //行卡片数
+    private static final int COLS = 4;  //列卡片数
+    private int x=0;  //卡片横坐标
+    private int y=0;  //卡片纵坐标
+    private int w=120;  //卡片宽
+    private int h=120;  //卡片高
+    private int i=0;  //卡片行位置
+    private int j=0;  //卡片列位置
 
-    private int start=25;
-    private int num=0;
-    private boolean merge=false;
+    private int start=25;  //卡片与边框距离
+    private int num=0;  //卡片数值
+    private boolean merge=false;  //卡片是否合并状态
 
     public Card(int i,int j){
         this.i=i;
@@ -20,10 +20,28 @@ public class Card {
         cal();
     }
 
+    //计算卡片横纵坐标
     public void cal(){
         this.x=start+j*w+(j+1)*10;
         this.y=start+i*h+(i+1)*10;
     }
+
+    //设置卡片数值
+    public void setNum(int num) {
+        this.num=num;
+    }
+
+    //获得卡片数值
+    public int getNum() {
+        return this.num;
+    }
+
+    //设置卡片合并状态
+    public void setMerge(boolean b) {
+        this.merge=b;
+    }
+
+    //卡片绘制
     public void draw(Graphics g) {
         Color color=getColor();
         Color oColor=g.getColor();
@@ -44,6 +62,7 @@ public class Card {
         g.setColor(oColor);
     }
 
+    //计算数字长度
     private static int getWordWidth(Font font,String content,Graphics g) {
         FontMetrics metrics = g.getFontMetrics(font);
         int width=0;
@@ -53,6 +72,7 @@ public class Card {
         return width;
     }
 
+    //获得卡片颜色
     private Color getColor(){
         Color color=null;
         switch(num){
@@ -97,100 +117,104 @@ public class Card {
         return color;
     }
 
-    public void setNum(int num) {
-        this.num=num;
-    }
-
-    public int getNum() {
-        return this.num;
-    }
-
-    public boolean moveTop(Card[][] cards) {
-        boolean flag = false;
+    //卡片移动
+    public boolean moveTop(Card[][] cards,boolean b) {
         if(i==0){
             return false;
         }
         Card prev = cards[i-1][j];
         if(prev.getNum()==0){
-            prev.num=this.num;
-            this.num=0;
-            flag=true;
-            prev.moveTop(cards);
+            if(b){
+                prev.num=this.num;
+                this.num=0;
+                prev.moveTop(cards,b);
+            }
+            return true;
         }else if(prev.getNum()==this.num && !this.merge){
-            prev.merge=true;
-            prev.num=prev.num+this.num;
-            this.num=0;
-            flag=true;
-            prev.moveTop(cards);
-        }
-        return flag;
-    }
-
-    public void setMerge(boolean b) {
-        this.merge=b;
-    }
-
-    public boolean moveLeft(Card[][] cards) {
-        boolean flag=false;
-        if(j==0){
+            if(b){
+                prev.merge=true;
+                prev.num=prev.num+this.num;
+                this.num=0;
+                prev.moveTop(cards,b);
+            }
+            return true;
+        }else{
             return false;
         }
-        Card prev = cards[i][j-1];
-        if(prev.getNum()==0){
-            prev.num=this.num;
-            this.num=0;
-            flag=true;
-            prev.moveLeft(cards);
-        }else if(prev.getNum()==this.num && !this.merge){
-            prev.merge=true;
-            prev.num=prev.num+this.num;
-            this.num=0;
-            flag=true;
-            prev.moveLeft(cards);
-        }
-        return flag;
     }
 
-    public boolean moveDown(Card[][] cards) {
-        boolean flag=false;
+    public boolean moveDown(Card[][] cards,boolean b) {
         if(i==ROWS-1){
             return false;
         }
         Card prev = cards[i+1][j];
         if(prev.getNum()==0){
-            prev.num=this.num;
-            this.num=0;
-            flag=true;
-            prev.moveDown(cards);
+            if(b){
+                prev.num=this.num;
+                this.num=0;
+                prev.moveDown(cards,b);
+            }
+            return true;
         }else if(prev.getNum()==this.num && !this.merge){
-            prev.merge=true;
-            prev.num=prev.num+this.num;
-            this.num=0;
-            flag=true;
-            prev.moveDown(cards);
-        }
-        return flag;
-    }
-
-    public boolean moveRight(Card[][] cards) {
-        boolean flag=false;
-        if(j==COLS-1){
+            if(b){
+                prev.merge=true;
+                prev.num=prev.num+this.num;
+                this.num=0;
+                prev.moveDown(cards,b);
+            }
+            return true;
+        }else{
             return false;
         }
-        Card prev = cards[i][j+1];
-        if(prev.getNum()==0){
-            prev.num=this.num;
-            this.num=0;
-            flag=true;
-            prev.moveRight(cards);
-        }else if(prev.getNum()==this.num && !this.merge){
-            prev.merge=true;
-            prev.num=prev.num+this.num;
-            this.num=0;
-            flag=true;
-            prev.moveRight(cards);
-        }
-        return flag;
     }
 
+    public boolean moveLeft(Card[][] cards,boolean b) {
+        if(j==0){
+            return false;
+        }
+        Card prev = cards[i][j-1];
+        if(prev.getNum()==0){
+            if(b){
+                prev.num=this.num;
+                this.num=0;
+                prev.moveLeft(cards,b);
+            }
+            return true;
+        }else if(prev.getNum()==this.num && !this.merge){
+            if(b){
+                prev.merge=true;
+                prev.num=prev.num+this.num;
+                this.num=0;
+                prev.moveLeft(cards,b);
+            }
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    public boolean moveRight(Card[][] cards,boolean b) {
+        if (j == COLS - 1) {
+            return false;
+        }
+        Card prev = cards[i][j + 1];
+        if (prev.getNum() == 0) {
+            if (b) {
+                prev.num = this.num;
+                this.num = 0;
+                prev.moveRight(cards, b);
+            }
+            return true;
+        } else if (prev.getNum() == this.num && !this.merge) {
+            if (b) {
+                prev.merge = true;
+                prev.num = prev.num + this.num;
+                this.num = 0;
+                prev.moveRight(cards, b);
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
