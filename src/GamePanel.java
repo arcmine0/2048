@@ -11,20 +11,44 @@ public class GamePanel extends JPanel implements ActionListener {
     private static final int ROWS = 4;  //行卡片数
     private static final int COLS = 4;  //列卡片数
     private JFrame frame = null;  //panel面板所属窗口
+    private JLabel scoreLabel = null;
     private Card[][] cards = new Card[ROWS][COLS];  //卡片所在二维数组
     private String gameFlag = "start";  //游戏状态
+    private int score = 0;
 
     public GamePanel(JFrame frame) {
         this.setLayout(new FlowLayout());  //设置组件布局
         this.setOpaque(false);  //设置组件透明度
         this.frame=frame;
+        this.scoreLabel = new JLabel();
 
         createMenu();  //创建菜单
         initCard();  //初始化卡片
+        createScore();  //创建分数显示
         createRandomNum();  //卡片随即赋值
         creatKeyListener();  //设置监听器
     }
 
+    //分数显示----------------------------------------------------------------------
+
+    //分数标签创建
+    public void createScore() {
+        scoreLabel.setText("score:"+score);
+        Font font = new Font("思源宋体",Font.PLAIN,20);
+        scoreLabel.setFont(font);
+        scoreLabel.setBounds(10,-30,90,90);
+        frame.add(scoreLabel);
+    }
+
+    //分数计算
+    public void getScore() {
+        score = 0;
+        for(int i=0;i<ROWS;i++){
+            for(int j=0;j<COLS;j++){
+                score = score + cards[i][j].getNum();
+            }
+        }
+    }
 
     //菜单创建--------------------------------------------------------------------------------
 
@@ -224,6 +248,8 @@ public class GamePanel extends JPanel implements ActionListener {
         }
 
         createRandomNum();
+        getScore();
+        scoreLabel.setText("score:"+score);
         repaint();
         gameOverOrNot();
     }
@@ -282,6 +308,7 @@ public class GamePanel extends JPanel implements ActionListener {
                 card=cards[i][j];
                 if(card.getNum()!=0){
                     if(card.moveLeft(cards,b)){
+                        score = score+card.getNum();
                         res = true;
                     }
                 }
@@ -299,6 +326,7 @@ public class GamePanel extends JPanel implements ActionListener {
                 card = cards[i][j];
                 if(card.getNum()!=0){
                     if(card.moveRight(cards,b)){
+                        score = score+card.getNum();
                         res = true;
                     }
                 }

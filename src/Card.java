@@ -5,6 +5,7 @@ public class Card {
     private static final int COLS = 4;  //列卡片数
     private int x=0;  //卡片横坐标
     private int y=0;  //卡片纵坐标
+
     private int w=120;  //卡片宽
     private int h=120;  //卡片高
     private int i=0;  //卡片行位置
